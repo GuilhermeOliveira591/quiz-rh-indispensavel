@@ -486,6 +486,15 @@ h3 {
   margin-bottom: 0.25rem;
 }
 
+/* Formulário CTA inline (Tela 4) */
+.form-cta {
+  margin-top: 1.5rem;
+}
+
+.form-cta .campo {
+  margin-bottom: 1.25rem;
+}
+
 /* Mensagem final */
 .mensagem-final {
   margin-top: 2rem;

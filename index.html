@@ -22,7 +22,7 @@
         <p>Não é sobre o que você sabe.</p>
         <p>É sobre como você atua hoje no RH.</p>
       </div>
-      <p class="texto-apoio">Se você está cansada de fazer muito, resolver muita coisa e ainda assim continuar fora das decisões, esse diagnóstico é pra você.</p>
+      <p class="texto-apoio">Se você está cansada(o) de fazer muito, resolver muita coisa e ainda assim continuar fora das decisões, esse diagnóstico é pra você.</p>
       <button class="btn-principal" onclick="iniciarQuiz()">Começar diagnóstico</button>
       <div class="meta-info">&#9201; 3 minutos &middot; 10 perguntas &middot; Resultado imediato</div>
     </div>
@@ -68,7 +68,7 @@
       <div class="opcoes-autorizacao">
         <label class="radio-opcao">
           <input type="radio" name="autorizacao" value="nao">
-          <span>Quero ver meu resultado agora e refletir sozinha</span>
+          <span>Quero ver meu resultado agora e refletir sozinha(o)</span>
         </label>
         <label class="radio-opcao">
           <input type="radio" name="autorizacao" value="sim">
@@ -97,8 +97,8 @@
             <input type="text" id="cargo" name="cargo">
           </div>
           <div class="campo">
-            <label for="empresa">Empresa</label>
-            <input type="text" id="empresa" name="empresa">
+            <label for="linkedin">LinkedIn</label>
+            <input type="url" id="linkedin" name="linkedin" placeholder="https://linkedin.com/in/seu-perfil">
           </div>
 
           <button type="submit" class="btn-principal" id="btn-ver-resultado">Ver meu resultado</button>
@@ -124,12 +124,14 @@
         <p>RH que não consegue conectar gente com resultado vira apoio.</p>
         <p>Apoio ajuda.<br>Mas não decide.</p>
         <p>E se você quer parar de ser a pessoa que só executa, organiza e segura a bronca, vai ter que ajustar a forma como você pensa, fala e se posiciona.</p>
-        <p>Não é sobre virar "RH do dono".<br>Nem virar "amiga do time".</p>
-        <p><strong>É sobre parar de ser ignorada.</strong></p>
+        <p>Não é sobre virar "RH do dono".<br>Nem virar "amiga(o) do time".</p>
+        <p><strong>É sobre parar de ser ignorada(o).</strong></p>
 
-        <button class="btn-principal" id="btn-cta-final" onclick="solicitarAnalise()">Quero que você analise meu resultado</button>
+        <button class="btn-principal" id="btn-cta-final" style="display:none;" onclick="solicitarAnalise()">Quero que você analise meu resultado</button>
 
-        <div class="texto-alternativo">
+        <div id="form-cta-container"></div>
+
+        <div class="texto-alternativo" id="texto-alternativo" style="display:none;">
           <p>Se não quiser, tudo bem.</p>
           <p>Mas agora você já sabe uma coisa que talvez estivesse tentando evitar:</p>
           <p><strong>não basta fazer RH bem feito.<br>Tem que fazer RH que pesa no negócio.</strong></p>

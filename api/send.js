@@ -24,12 +24,12 @@ function isRateLimited(ip) {
 
 // ---- Validações ----
 var EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-var WHATSAPP_REGEX = /^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/;
+var LINKEDIN_REGEX = /^https:\/\/(www\.)?linkedin\.com\/in\/[\w\-%.]+\/?$/;
 var MAX_FIELD_LENGTH = 200;
 var MAX_RESPOSTA_LENGTH = 300;
 
 function validarCampos(body) {
-  var { nome, email, whatsapp, cargo, empresa, pontuacao, classificacao, respostas, autorizacao } = body;
+  var { nome, email, whatsapp, cargo, linkedin, pontuacao, classificacao, respostas, autorizacao } = body;
 
   if (!nome || !email || !whatsapp) {
     return 'Campos obrigatórios não preenchidos';
@@ -52,8 +52,8 @@ function validarCampos(body) {
     return 'Cargo inválido';
   }
 
-  if (empresa && (typeof empresa !== 'string' || empresa.length > MAX_FIELD_LENGTH)) {
-    return 'Empresa inválida';
+  if (linkedin && (typeof linkedin !== 'string' || !LINKEDIN_REGEX.test(linkedin))) {
+    return 'LinkedIn inválido';
   }
 
   if (typeof pontuacao !== 'number' || pontuacao < 0 || pontuacao > 20 || !Number.isInteger(pontuacao)) {
@@ -145,7 +145,7 @@ module.exports = async function handler(req, res) {
       email,
       whatsapp,
       cargo,
-      empresa,
+      linkedin,
       pontuacao,
       classificacao,
       respostas,
@@ -197,9 +197,9 @@ module.exports = async function handler(req, res) {
             <td style="padding: 0.75rem; border-bottom: 1px solid #D6CFC0; font-size: 13px; color: #5C5847;">Cargo</td>
             <td style="padding: 0.75rem; border-bottom: 1px solid #D6CFC0; font-size: 14px; color: #1A1915;">${escapeHtml(cargo)}</td>
           </tr>` : ''}
-          ${empresa ? `<tr>
-            <td style="padding: 0.75rem; border-bottom: 1px solid #D6CFC0; font-size: 13px; color: #5C5847;">Empresa</td>
-            <td style="padding: 0.75rem; border-bottom: 1px solid #D6CFC0; font-size: 14px; color: #1A1915;">${escapeHtml(empresa)}</td>
+          ${linkedin ? `<tr>
+            <td style="padding: 0.75rem; border-bottom: 1px solid #D6CFC0; font-size: 13px; color: #5C5847;">LinkedIn</td>
+            <td style="padding: 0.75rem; border-bottom: 1px solid #D6CFC0; font-size: 14px; color: #1A1915;"><a href="${escapeHtml(linkedin)}" style="color: #A38E64;">${escapeHtml(linkedin)}</a></td>
           </tr>` : ''}
         </table>
 

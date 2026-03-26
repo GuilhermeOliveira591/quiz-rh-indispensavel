@@ -240,12 +240,18 @@ function enviarDados(event) {
   var pontuacao = calcularPontuacao();
   var classificacao = classificar(pontuacao);
 
+  var linkedinVal = document.getElementById('linkedin').value.trim();
+  if (linkedinVal && !validarLinkedin(linkedinVal)) {
+    alert('LinkedIn inválido. Use o formato: https://linkedin.com/in/seu-perfil');
+    return;
+  }
+
   dadosUsuario = {
     nome: document.getElementById('nome').value.trim(),
     email: document.getElementById('email').value.trim(),
     whatsapp: document.getElementById('whatsapp').value.trim(),
     cargo: document.getElementById('cargo').value.trim(),
-    empresa: document.getElementById('empresa').value.trim(),
+    linkedin: linkedinVal,
     pontuacao: pontuacao,
     classificacao: classificacao,
     respostas: obterRespostasTexto(),
@@ -278,21 +284,21 @@ function mostrarResultado(pontuacao, classificacao, autorizacao) {
     html += '<ul class="resultado-pratica">';
     html += '<li>você trabalha muito</li>';
     html += '<li>resolve muita coisa</li>';
-    html += '<li>mas continua sendo deixada de lado nas decisões</li>';
+    html += '<li>mas continua sendo deixada(o) de lado nas decisões</li>';
     html += '<li>e, se sair, alguém "dá um jeito"</li>';
     html += '</ul>';
     html += '<div class="resultado-insight">';
-    html += '<p>Você não está presa porque falta competência.</p>';
-    html += '<p>Você está presa porque ainda não aprendeu a transformar RH em argumento de negócio.</p>';
+    html += '<p>Você não está presa(o) porque falta competência.</p>';
+    html += '<p>Você está presa(o) porque ainda não aprendeu a transformar RH em argumento de negócio.</p>';
     html += '</div>';
     html += '<div class="resultado-chamada">';
     html += '<p>Se quiser, pode me autorizar a analisar seu resultado.</p>';
     html += '<p>Eu te mostro onde você ainda está operando como apoio e o que precisa ajustar pra parar de ser só "a menina do RH que resolve tudo".</p>';
     html += '</div>';
   } else if (pontuacao <= 14) {
-    html += '<h2>Você já saiu de parte do operacional. Mas ainda não virou estratégica de verdade.</h2>';
+    html += '<h2>Você já saiu de parte do operacional. Mas ainda não virou estratégica(o) de verdade.</h2>';
     html += '<p>Você já entendeu que RH não pode viver só de processo, ação interna e conversa bonita.</p>';
-    html += '<p>Só que ainda tem uma trava:<br>em alguns momentos você pensa como estratégica,<br>mas na hora de se posicionar, defender uma ideia ou sustentar uma decisão, volta pro lugar de apoio.</p>';
+    html += '<p>Só que ainda tem uma trava:<br>em alguns momentos você pensa como estratégica(o),<br>mas na hora de se posicionar, defender uma ideia ou sustentar uma decisão, volta pro lugar de apoio.</p>';
     html += '<p>E esse é o pior limbo do RH.</p>';
     html += '<p>Porque você já não se vê como operacional.<br>Mas a empresa ainda não te vê como peça importante do negócio.</p>';
     html += '<p style="margin-top:1.5rem;font-weight:500;">O que isso significa na prática:</p>';
@@ -300,14 +306,14 @@ function mostrarResultado(pontuacao, classificacao, autorizacao) {
     html += '<li>você já percebe problema antes dos outros</li>';
     html += '<li>já entende que cultura, clima e performance afetam resultado</li>';
     html += '<li>mas ainda não consegue sustentar isso com força</li>';
-    html += '<li>e por isso continua sendo meio ouvida, meio ignorada</li>';
+    html += '<li>e por isso continua sendo meio ouvida(o), meio ignorada(o)</li>';
     html += '</ul>';
     html += '<div class="resultado-insight">';
     html += '<p>Você não precisa aprender mais RH.</p>';
     html += '<p>Precisa aprender a sustentar seu RH com lógica de negócio, dado e posicionamento.</p>';
     html += '</div>';
     html += '<div class="resultado-chamada">';
-    html += '<p>Se quiser, eu posso olhar seu resultado e te mostrar exatamente o que está faltando pra você parar de oscilar entre "boa de operação" e "estratégica de verdade".</p>';
+    html += '<p>Se quiser, eu posso olhar seu resultado e te mostrar exatamente o que está faltando pra você parar de oscilar entre "boa(bom) de operação" e "estratégica(o) de verdade".</p>';
     html += '</div>';
   } else {
     html += '<h2>Você já pensa como RH estratégico. Mas isso ainda pode não estar te pagando de volta.</h2>';
@@ -327,15 +333,26 @@ function mostrarResultado(pontuacao, classificacao, autorizacao) {
     html += '</div>';
     html += '<div class="resultado-chamada">';
     html += '<p>Se quiser, pode me autorizar a analisar seu resultado.</p>';
-    html += '<p>Se eu enxergar ponto cego, eu te falo. E te mostro onde ajustar pra você não continuar crescendo sozinha e no improviso.</p>';
+    html += '<p>Se eu enxergar ponto cego, eu te falo. E te mostro onde ajustar pra você não continuar crescendo sozinha(o) e no improviso.</p>';
     html += '</div>';
   }
 
   conteudo.innerHTML = html;
 
-  // Esconder CTA se já autorizou
   if (autorizacao === 'sim') {
+    // Já autorizou contato: esconde CTA e texto alternativo, mostra confirmação
     document.getElementById('btn-cta-final').style.display = 'none';
+    document.getElementById('texto-alternativo').style.display = 'none';
+    document.getElementById('form-cta-container').innerHTML = '';
+    var msg = document.getElementById('mensagem-final');
+    msg.style.display = 'block';
+    msg.innerHTML = '<p>Seu resultado foi enviado para análise. Se fizer sentido, entrarei em contato com você.</p>';
+  } else {
+    // Escolheu refletir sozinha(o): mostra CTA e texto alternativo
+    document.getElementById('btn-cta-final').style.display = 'block';
+    document.getElementById('texto-alternativo').style.display = 'block';
+    document.getElementById('form-cta-container').innerHTML = '';
+    document.getElementById('mensagem-final').style.display = 'none';
   }
 }
 
@@ -349,45 +366,89 @@ function enviarParaAPI(dados) {
   });
 }
 
+function validarLinkedin(url) {
+  return /^https:\/\/(www\.)?linkedin\.com\/in\/[\w\-%.]+\/?$/.test(url);
+}
+
 function solicitarAnalise() {
   var btn = document.getElementById('btn-cta-final');
-  btn.classList.add('btn-loading');
-  btn.textContent = 'Enviando...';
+  var container = document.getElementById('form-cta-container');
 
-  dadosUsuario.autorizacao = 'sim';
+  // Se o formulário já está visível, não renderiza de novo
+  if (container.querySelector('form')) return;
 
-  fetch('/api/send', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(dadosUsuario)
-  }).then(function (res) {
-    return res.json();
-  }).then(function () {
-    btn.style.display = 'none';
-    var msg = document.getElementById('mensagem-final');
-    msg.style.display = 'block';
-    msg.innerHTML = '<p>Seu resultado foi enviado para análise. Se fizer sentido, entrarei em contato com você.</p>';
-  }).catch(function () {
-    btn.classList.remove('btn-loading');
-    btn.textContent = 'Quero que você analise meu resultado';
+  btn.style.display = 'none';
+
+  var html = '<form id="form-cta" class="form-cta">';
+  html += '<div class="campo"><label for="cta-nome">Nome *</label>';
+  html += '<input type="text" id="cta-nome" required></div>';
+  html += '<div class="campo"><label for="cta-email">E-mail *</label>';
+  html += '<input type="email" id="cta-email" required></div>';
+  html += '<div class="campo"><label for="cta-whatsapp">WhatsApp *</label>';
+  html += '<input type="tel" id="cta-whatsapp" required placeholder="(00) 00000-0000"></div>';
+  html += '<div class="campo"><label for="cta-linkedin">LinkedIn *</label>';
+  html += '<input type="url" id="cta-linkedin" required placeholder="https://linkedin.com/in/seu-perfil"></div>';
+  html += '<button type="submit" class="btn-principal">Enviar para análise</button>';
+  html += '</form>';
+
+  container.innerHTML = html;
+
+  // Máscara WhatsApp no campo dinâmico
+  aplicarMascaraWhatsapp(document.getElementById('cta-whatsapp'));
+
+  document.getElementById('form-cta').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    var nome = document.getElementById('cta-nome').value.trim();
+    var email = document.getElementById('cta-email').value.trim();
+    var whatsapp = document.getElementById('cta-whatsapp').value.trim();
+    var linkedin = document.getElementById('cta-linkedin').value.trim();
+
+    if (!nome || !email || !whatsapp || !linkedin) {
+      this.reportValidity();
+      return;
+    }
+
+    if (!validarLinkedin(linkedin)) {
+      alert('LinkedIn inválido. Use o formato: https://linkedin.com/in/seu-perfil');
+      return;
+    }
+
+    var btnSubmit = this.querySelector('button[type="submit"]');
+    btnSubmit.classList.add('btn-loading');
+    btnSubmit.textContent = 'Enviando...';
+
+    dadosUsuario.nome = nome;
+    dadosUsuario.email = email;
+    dadosUsuario.whatsapp = whatsapp;
+    dadosUsuario.linkedin = linkedin;
+    dadosUsuario.autorizacao = 'sim';
+
+    // Mostrar confirmação independente do resultado do fetch
+    container.innerHTML = '<div class="mensagem-final" style="display:block;"><p>Seu resultado foi enviado para análise. Se fizer sentido, entrarei em contato com você.</p></div>';
+    document.getElementById('texto-alternativo').style.display = 'none';
+
+    enviarParaAPI(dadosUsuario);
   });
 }
 
 // ---- Máscara WhatsApp ----
 
+function aplicarMascaraWhatsapp(el) {
+  if (!el) return;
+  el.addEventListener('input', function (e) {
+    var valor = e.target.value.replace(/\D/g, '');
+    if (valor.length > 11) valor = valor.substring(0, 11);
+    if (valor.length > 6) {
+      e.target.value = '(' + valor.substring(0, 2) + ') ' + valor.substring(2, 7) + '-' + valor.substring(7);
+    } else if (valor.length > 2) {
+      e.target.value = '(' + valor.substring(0, 2) + ') ' + valor.substring(2);
+    } else if (valor.length > 0) {
+      e.target.value = '(' + valor;
+    }
+  });
+}
+
 document.addEventListener('DOMContentLoaded', function () {
-  var whatsapp = document.getElementById('whatsapp');
-  if (whatsapp) {
-    whatsapp.addEventListener('input', function (e) {
-      var valor = e.target.value.replace(/\D/g, '');
-      if (valor.length > 11) valor = valor.substring(0, 11);
-      if (valor.length > 6) {
-        e.target.value = '(' + valor.substring(0, 2) + ') ' + valor.substring(2, 7) + '-' + valor.substring(7);
-      } else if (valor.length > 2) {
-        e.target.value = '(' + valor.substring(0, 2) + ') ' + valor.substring(2);
-      } else if (valor.length > 0) {
-        e.target.value = '(' + valor;
-      }
-    });
-  }
+  aplicarMascaraWhatsapp(document.getElementById('whatsapp'));
 });
