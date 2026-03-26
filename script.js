@@ -255,7 +255,8 @@ function enviarDados(event) {
     pontuacao: pontuacao,
     classificacao: classificacao,
     respostas: obterRespostasTexto(),
-    autorizacao: 'sim'
+    autorizacao: 'sim',
+    origem: 'formulario_captura'
   };
 
   // Mostrar resultado imediatamente, independente do envio
@@ -423,6 +424,7 @@ function solicitarAnalise() {
     dadosUsuario.whatsapp = whatsapp;
     dadosUsuario.linkedin = linkedin;
     dadosUsuario.autorizacao = 'sim';
+    dadosUsuario.origem = 'cta_resultado';
 
     // Mostrar confirmação independente do resultado do fetch
     container.innerHTML = '<div class="mensagem-final" style="display:block;"><p>Seu resultado foi enviado para análise. Se fizer sentido, entrarei em contato com você.</p></div>';

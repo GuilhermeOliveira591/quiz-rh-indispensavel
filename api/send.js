@@ -75,6 +75,11 @@ function validarCampos(body) {
     }
   }
 
+  var origensValidas = ['formulario_captura', 'cta_resultado'];
+  if (body.origem && !origensValidas.includes(body.origem)) {
+    return 'Origem inválida';
+  }
+
   if (autorizacao !== 'sim' && autorizacao !== 'nao') {
     return 'Autorização inválida';
   }
@@ -146,6 +151,7 @@ module.exports = async function handler(req, res) {
       whatsapp,
       cargo,
       linkedin,
+      origem,
       pontuacao,
       classificacao,
       respostas,
@@ -200,6 +206,10 @@ module.exports = async function handler(req, res) {
           ${linkedin ? `<tr>
             <td style="padding: 0.75rem; border-bottom: 1px solid #D6CFC0; font-size: 13px; color: #5C5847;">LinkedIn</td>
             <td style="padding: 0.75rem; border-bottom: 1px solid #D6CFC0; font-size: 14px; color: #1A1915;"><a href="${escapeHtml(linkedin)}" style="color: #A38E64;">${escapeHtml(linkedin)}</a></td>
+          </tr>` : ''}
+          ${origem ? `<tr>
+            <td style="padding: 0.75rem; border-bottom: 1px solid #D6CFC0; font-size: 13px; color: #5C5847;">Origem do lead</td>
+            <td style="padding: 0.75rem; border-bottom: 1px solid #D6CFC0; font-size: 14px; color: #1A1915;">${origem === 'cta_resultado' ? 'CTA no resultado' : 'Formulário de captura'}</td>
           </tr>` : ''}
         </table>
 
