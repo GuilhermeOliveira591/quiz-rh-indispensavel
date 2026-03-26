@@ -347,7 +347,7 @@ function mostrarResultado(pontuacao, classificacao, autorizacao) {
     document.getElementById('form-cta-container').innerHTML = '';
     var msg = document.getElementById('mensagem-final');
     msg.style.display = 'block';
-    msg.innerHTML = '<p>Seu resultado foi enviado para análise. Se fizer sentido, entrarei em contato com você.</p>';
+    msg.innerHTML = '<p>Seu resultado foi enviado para análise. Entraremos em contato com você.</p>';
   } else {
     // Escolheu refletir sozinha(o): mostra CTA e texto alternativo
     document.getElementById('btn-cta-final').style.display = 'block';
@@ -427,7 +427,7 @@ function solicitarAnalise() {
     dadosUsuario.origem = 'cta_resultado';
 
     // Mostrar confirmação independente do resultado do fetch
-    container.innerHTML = '<div class="mensagem-final" style="display:block;"><p>Seu resultado foi enviado para análise. Se fizer sentido, entrarei em contato com você.</p></div>';
+    container.innerHTML = '<div class="mensagem-final" style="display:block;"><p>Seu resultado foi enviado para análise. Entraremos em contato com você.</p></div>';
     document.getElementById('texto-alternativo').style.display = 'none';
 
     enviarParaAPI(dadosUsuario);
