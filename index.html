@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagnóstico de RH — Fanelli Consultoria | Stefanie Santana - RH que dá lucro</title>
+  <meta name="description" content="Você influencia o negócio ou só organiza o caos? Descubra em 3 minutos.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- TELA 1 — INTRO -->
+  <section id="tela-intro" class="tela ativa">
+    <div class="container">
+      <div class="brand">Fanelli Consultoria | Stefanie Santana - RH que dá lucro</div>
+      <h1>Você influencia o negócio<br>ou só organiza o caos?</h1>
+      <div class="subtitulo">
+        <p>Responda com honestidade.</p>
+        <p>Não é sobre o que você sabe.</p>
+        <p>É sobre como você atua hoje no RH.</p>
+      </div>
+      <p class="texto-apoio">Se você está cansada de fazer muito, resolver muita coisa e ainda assim continuar fora das decisões, esse diagnóstico é pra você.</p>
+      <button class="btn-principal" onclick="iniciarQuiz()">Começar diagnóstico</button>
+      <div class="meta-info">&#9201; 3 minutos &middot; 10 perguntas &middot; Resultado imediato</div>
+    </div>
+  </section>
+
+  <!-- TELA 2 — QUIZ -->
+  <section id="tela-quiz" class="tela">
+    <div class="container">
+      <div class="quiz-header">
+        <div class="brand-small">Fanelli Consultoria | Stefanie Santana - RH que dá lucro</div>
+        <div class="progresso">
+          <div class="progresso-barra">
+            <div class="progresso-preenchimento" id="progresso-preenchimento"></div>
+          </div>
+          <span class="progresso-texto" id="progresso-texto">1 de 10</span>
+        </div>
+      </div>
+
+      <div class="quiz-instrucao">
+        <p>Responda com base no que você faz hoje.</p>
+        <p>Não no que você gostaria de fazer.</p>
+        <p>Não no que você sabe na teoria.</p>
+      </div>
+
+      <div id="quiz-pergunta-container">
+        <!-- Perguntas renderizadas via JS -->
+      </div>
+
+      <div class="quiz-navegacao">
+        <button class="btn-secundario" id="btn-anterior" onclick="perguntaAnterior()" style="display:none;">Anterior</button>
+        <button class="btn-principal" id="btn-proximo" onclick="proximaPergunta()" disabled>Próxima</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TELA 3 — CAPTURA -->
+  <section id="tela-captura" class="tela">
+    <div class="container">
+      <div class="brand-small">Fanelli Consultoria | Stefanie Santana - RH que dá lucro</div>
+      <h2>Seu resultado está pronto</h2>
+      <p class="texto-captura">Antes de liberar sua análise, escolha como quer seguir.</p>
+
+      <div class="opcoes-autorizacao">
+        <label class="radio-opcao">
+          <input type="radio" name="autorizacao" value="nao">
+          <span>Quero ver meu resultado agora e refletir sozinha</span>
+        </label>
+        <label class="radio-opcao">
+          <input type="radio" name="autorizacao" value="sim">
+          <span>Quero ver meu resultado e autorizo que entrem em contato comigo para análise</span>
+        </label>
+      </div>
+
+      <button class="btn-principal" id="btn-ver-direto" style="display:none;" onclick="verResultadoDireto()">Ver meu resultado</button>
+
+      <div id="formulario-captura" class="formulario-captura">
+        <form id="form-captura" onsubmit="enviarDados(event)">
+          <div class="campo">
+            <label for="nome">Nome *</label>
+            <input type="text" id="nome" name="nome" required>
+          </div>
+          <div class="campo">
+            <label for="email">E-mail *</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+          <div class="campo">
+            <label for="whatsapp">WhatsApp *</label>
+            <input type="tel" id="whatsapp" name="whatsapp" required placeholder="(00) 00000-0000">
+          </div>
+          <div class="campo">
+            <label for="cargo">Cargo atual</label>
+            <input type="text" id="cargo" name="cargo">
+          </div>
+          <div class="campo">
+            <label for="empresa">Empresa</label>
+            <input type="text" id="empresa" name="empresa">
+          </div>
+
+          <button type="submit" class="btn-principal" id="btn-ver-resultado">Ver meu resultado</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- TELA 4 — RESULTADO -->
+  <section id="tela-resultado" class="tela">
+    <div class="container">
+      <div class="brand-small">Fanelli Consultoria | Stefanie Santana - RH que dá lucro</div>
+
+      <div class="resultado-nivel" id="resultado-nivel"></div>
+      <div class="resultado-pontuacao" id="resultado-pontuacao"></div>
+
+      <div id="resultado-conteudo">
+        <!-- Conteúdo dinâmico via JS -->
+      </div>
+
+      <div class="bloco-fixo">
+        <h3>A real?</h3>
+        <p>RH que não consegue conectar gente com resultado vira apoio.</p>
+        <p>Apoio ajuda.<br>Mas não decide.</p>
+        <p>E se você quer parar de ser a pessoa que só executa, organiza e segura a bronca, vai ter que ajustar a forma como você pensa, fala e se posiciona.</p>
+        <p>Não é sobre virar "RH do dono".<br>Nem virar "amiga do time".</p>
+        <p><strong>É sobre parar de ser ignorada.</strong></p>
+
+        <button class="btn-principal" id="btn-cta-final" onclick="solicitarAnalise()">Quero que você analise meu resultado</button>
+
+        <div class="texto-alternativo">
+          <p>Se não quiser, tudo bem.</p>
+          <p>Mas agora você já sabe uma coisa que talvez estivesse tentando evitar:</p>
+          <p><strong>não basta fazer RH bem feito.<br>Tem que fazer RH que pesa no negócio.</strong></p>
+        </div>
+      </div>
+
+      <div id="mensagem-final" class="mensagem-final" style="display:none;"></div>
+    </div>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>
