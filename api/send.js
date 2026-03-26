@@ -1,5 +1,93 @@
 const nodemailer = require('nodemailer');
 
+// ---- Rate limiting em memória (por IP) ----
+const rateLimitMap = new Map();
+const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutos
+const RATE_LIMIT_MAX = 5; // máx 5 envios por IP a cada 15 min
+
+function isRateLimited(ip) {
+  var now = Date.now();
+  var entry = rateLimitMap.get(ip);
+
+  if (!entry || now - entry.start > RATE_LIMIT_WINDOW) {
+    rateLimitMap.set(ip, { start: now, count: 1 });
+    return false;
+  }
+
+  entry.count++;
+  if (entry.count > RATE_LIMIT_MAX) {
+    return true;
+  }
+
+  return false;
+}
+
+// ---- Validações ----
+var EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+var WHATSAPP_REGEX = /^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/;
+var MAX_FIELD_LENGTH = 200;
+var MAX_RESPOSTA_LENGTH = 300;
+
+function validarCampos(body) {
+  var { nome, email, whatsapp, cargo, empresa, pontuacao, classificacao, respostas, autorizacao } = body;
+
+  if (!nome || !email || !whatsapp) {
+    return 'Campos obrigatórios não preenchidos';
+  }
+
+  if (typeof nome !== 'string' || nome.length > MAX_FIELD_LENGTH) {
+    return 'Nome inválido';
+  }
+
+  if (typeof email !== 'string' || !EMAIL_REGEX.test(email) || email.length > MAX_FIELD_LENGTH) {
+    return 'E-mail inválido';
+  }
+
+  var whatsappDigits = whatsapp.replace(/\D/g, '');
+  if (typeof whatsapp !== 'string' || whatsappDigits.length < 10 || whatsappDigits.length > 11) {
+    return 'WhatsApp inválido';
+  }
+
+  if (cargo && (typeof cargo !== 'string' || cargo.length > MAX_FIELD_LENGTH)) {
+    return 'Cargo inválido';
+  }
+
+  if (empresa && (typeof empresa !== 'string' || empresa.length > MAX_FIELD_LENGTH)) {
+    return 'Empresa inválida';
+  }
+
+  if (typeof pontuacao !== 'number' || pontuacao < 0 || pontuacao > 20 || !Number.isInteger(pontuacao)) {
+    return 'Pontuação inválida';
+  }
+
+  var classificacoesValidas = ['RH Operacional', 'RH em Transição', 'RH Estratégico (ou quase)'];
+  if (!classificacoesValidas.includes(classificacao)) {
+    return 'Classificação inválida';
+  }
+
+  if (!Array.isArray(respostas) || respostas.length !== 10) {
+    return 'Respostas inválidas';
+  }
+
+  for (var i = 0; i < respostas.length; i++) {
+    if (typeof respostas[i] !== 'string' || respostas[i].length > MAX_RESPOSTA_LENGTH) {
+      return 'Resposta inválida';
+    }
+  }
+
+  if (autorizacao !== 'sim' && autorizacao !== 'nao') {
+    return 'Autorização inválida';
+  }
+
+  return null;
+}
+
+// ---- Sanitizar texto para assunto de e-mail (previne header injection) ----
+function sanitizeSubject(text) {
+  return String(text).replace(/[\r\n\t]/g, ' ').substring(0, 200);
+}
+
+// ---- Transporter ----
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
   port: 465,
@@ -10,13 +98,49 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// ---- Handler ----
 module.exports = async function handler(req, res) {
+  // CORS — apenas origens permitidas
+  var allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',')
+    : [];
+  var origin = req.headers.origin || '';
+
+  if (allowedOrigins.length > 0 && !allowedOrigins.includes(origin)) {
+    return res.status(403).json({ error: 'Origem não permitida' });
+  }
+
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'POST');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método não permitido' });
   }
 
+  // Rate limiting
+  var clientIp = req.headers['x-forwarded-for']
+    ? req.headers['x-forwarded-for'].split(',')[0].trim()
+    : req.socket.remoteAddress || 'unknown';
+
+  if (isRateLimited(clientIp)) {
+    return res.status(429).json({ error: 'Muitas requisições. Tente novamente em alguns minutos.' });
+  }
+
+  // Limite de tamanho do body
+  var bodyStr = JSON.stringify(req.body);
+  if (!bodyStr || bodyStr.length > 10000) {
+    return res.status(413).json({ error: 'Payload muito grande' });
+  }
+
   try {
-    const {
+    var {
       nome,
       email,
       whatsapp,
@@ -28,19 +152,21 @@ module.exports = async function handler(req, res) {
       autorizacao
     } = req.body;
 
-    if (!nome || !email || !whatsapp) {
-      return res.status(400).json({ error: 'Campos obrigatórios não preenchidos' });
+    // Validação completa
+    var erro = validarCampos(req.body);
+    if (erro) {
+      return res.status(400).json({ error: erro });
     }
 
-    const autorizou = autorizacao === 'sim';
+    var autorizou = autorizacao === 'sim';
 
-    const respostasFormatadas = respostas
+    var respostasFormatadas = respostas
       .map(function (r, i) {
         return (i + 1) + '. ' + r;
       })
       .join('\n');
 
-    const htmlEmail = `
+    var htmlEmail = `
       <div style="font-family: 'DM Sans', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #F7F4EE; padding: 2rem;">
         <div style="font-size: 12px; color: #A38E64; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1.5rem;">
           Fanelli Consultoria | Stefanie Santana - RH que dá lucro — Diagnóstico
@@ -94,9 +220,11 @@ module.exports = async function handler(req, res) {
       </div>
     `;
 
-    const assunto = autorizou
-      ? `[DIAGNÓSTICO] ${classificacao} — ${nome} (autorizou contato)`
-      : `[DIAGNÓSTICO] ${classificacao} — ${nome}`;
+    var assunto = sanitizeSubject(
+      autorizou
+        ? '[DIAGNÓSTICO] ' + classificacao + ' — ' + nome + ' (autorizou contato)'
+        : '[DIAGNÓSTICO] ' + classificacao + ' — ' + nome
+    );
 
     await transporter.sendMail({
       from: `"Fanelli Consultoria | Stefanie Santana" <${process.env.GMAIL_USER}>`,
